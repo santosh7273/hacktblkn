@@ -13,9 +13,10 @@ function ImageProcessing() {
   const [sy4, setsy4] = useState("");
   const [sy5, setsy5] = useState("");
   const [per, setper] = useState("");
+  const [disease, setDisease] = useState(""); // State for disease name
   const [isChecked, setIsChecked] = useState(false);
   const [symptom, setSymptom] = useState("");
-  const [pre,setPre]=useState(false)
+  const [pre, setPre] = useState(false);
 
   function extractBetween(x, startStr, endStr) {
     const startIndex = x.indexOf(startStr);
@@ -34,6 +35,29 @@ function ImageProcessing() {
     return match ? match[1] : "";
   }
 
+  // Improved function to extract disease name - gets only the primary diagnosis
+  function extractDiseaseName(str) {
+    const regex = /Predicted Disease\s*[:：-]?\s*([^(.,\n]+)/i;
+    const match = str.match(regex);
+    
+    if (match) {
+      // Extract the main disease name and clean it up
+      let disease = match[1].trim();
+      
+      // If there are multiple conditions separated by "or", take only the first one
+      if (disease.includes(" or ")) {
+        disease = disease.split(" or ")[0].trim();
+      }
+      
+      // Remove any trailing characters like periods, commas, etc.
+      disease = disease.replace(/[.,;:]$/, "").trim();
+      
+      return disease;
+    }
+    
+    return "";
+  }
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -44,10 +68,11 @@ function ImageProcessing() {
       setImage({ base64, type: file.type });
     };
     reader.readAsDataURL(file);
-    setPre(true)
+    setPre(true);
   };
 
-  const defaultPrompt = `
+  // Updated prompt to request a concise disease name
+  const modifiedPrompt = `
 Analyze the image carefully and provide a detailed medical assessment. Structure the response using the following headings, and present the content in simple, clear bullet points:
 
 ### 1. Symptoms
@@ -65,7 +90,9 @@ Mention the important precautions or lifestyle adjustments the patient should fo
 ### 5. Tablets
 Provide a list of commonly used over-the-counter or prescription medications/tablets used to treat or relieve the condition.
 
-Also, give the accuracy percentage of the result at the bottom. Format it like: "Accuracy: 92%" some of the symptoms are ${symptom}`;
+Also, give the accuracy percentage of the result at the bottom. Format it like: "Accuracy: 92%",
+Give me the name of the final disease at the bottom. Format it EXACTLY like: "Predicted Disease: DiseaseName" (use just a single word or short phrase for the condition, without any explanations or disclaimers),
+some of the symptoms are ${symptom}`;
 
   const handleClick = async () => {
     if (!image) {
@@ -74,8 +101,7 @@ Also, give the accuracy percentage of the result at the bottom. Format it like: 
     }
 
     setLoading(true);
-    const apiKey = import.meta.env.VITE_GEMINI_API;
-    const genAI = new GoogleGenerativeAI(apiKey);
+    const genAI = new GoogleGenerativeAI("AIzaSyCbo9etN29_20b0kM5cuXtmJfYM8_od810");
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" });
 
     const imagePart = {
@@ -90,7 +116,7 @@ Also, give the accuracy percentage of the result at the bottom. Format it like: 
         contents: [
           {
             role: "user",
-            parts: [imagePart, { text: defaultPrompt }],
+            parts: [imagePart, { text: modifiedPrompt }],
           },
         ],
       });
@@ -103,6 +129,7 @@ Also, give the accuracy percentage of the result at the bottom. Format it like: 
       setsy4("");
       setsy5("");
       setper("");
+      setDisease("");
 
       for await (const chunk of result.stream) {
         const chunkText = chunk.text();
@@ -116,7 +143,9 @@ Also, give the accuracy percentage of the result at the bottom. Format it like: 
       setsy3(extractBetween(fullText, "3. Best Diet", "4. Precautions"));
       setsy4(extractBetween(fullText, "4. Precautions", "5. Tablets"));
       setsy5(extractBetween(fullText, "5. Tablets", "Accuracy"));
+
       setper(extractAfterWord(fullText, "Accuracy"));
+      setDisease(extractDiseaseName(fullText));
     } catch (err) {
       console.error(err);
       setText1("Something went wrong.");
@@ -134,42 +163,42 @@ Also, give the accuracy percentage of the result at the bottom. Format it like: 
         onChange={handleImageChange}
       />
       <div className="gap-4 mt-4 flex justify-center items-center">
-  <label htmlFor="imageUpload" className="upload-label items-center">
-    Upload Image
-  </label>
+        <label htmlFor="imageUpload" className="upload-label items-center">
+          Upload Image
+        </label>
 
-  {pre &&image && (
-    <img
-      src={`data:${image.type};base64,${image.base64}`}
-      alt="preview"
-      className="w-20 h-20 object-cover rounded-lg shadow"
-    />
-  )}
-</div>
+        {pre && image && (
+          <img
+            src={`data:${image.type};base64,${image.base64}`}
+            alt="preview"
+            className="w-20 h-20 object-cover rounded-lg shadow"
+          />
+        )}
+      </div>
 
       <br />
       <div className="p-4 border rounded-xl shadow-md bg-white max-w-md mx-auto mt-6">
-      <label className="flex items-center space-x-3 text-lg font-medium">
-        <input
-          type="checkbox"
-          checked={isChecked}
-          onChange={(e) => setIsChecked(e.target.checked)}
-          className="w-5 h-5 text-blue-600 rounded focus:ring-0"
-        />
-        <span>Add custom symptom</span>
-      </label>
+        <label className="flex items-center space-x-3 text-lg font-medium">
+          <input
+            type="checkbox"
+            checked={isChecked}
+            onChange={(e) => setIsChecked(e.target.checked)}
+            className="w-5 h-5 text-blue-600 rounded focus:ring-0"
+          />
+          <span>Add custom symptom</span>
+        </label>
 
-      {isChecked && (
-        <input
-          type="text"
-          value={symptom}
-          onChange={(e) => setSymptom(e.target.value)}
-          placeholder="Enter symptom..."
-          className="mt-4 w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
-      )}
-    </div>
-        <br />
+        {isChecked && (
+          <input
+            type="text"
+            value={symptom}
+            onChange={(e) => setSymptom(e.target.value)}
+            placeholder="Enter symptom..."
+            className="mt-4 w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        )}
+      </div>
+      <br />
       <button className="fetch-btn" onClick={handleClick} disabled={loading}>
         {loading ? "Generating..." : "Generate"}
       </button>
@@ -227,12 +256,18 @@ Also, give the accuracy percentage of the result at the bottom. Format it like: 
             </div>
           )}
           {per && (
-           <div className="p-4 border-2 border-blue-500 rounded-2xl text-xl text-blue-800 shadow-lg bg-blue-50 mt-6 flex items-center gap-2">
-           <h1 className="font-semibold">
-             Accuracy: <span className="font-bold text-blue-700">{per}</span>
-           </h1>
-         </div>
-         
+            <div className="p-4 border-2 border-blue-500 rounded-2xl text-xl text-blue-800 shadow-lg bg-blue-50 mt-6 flex items-center gap-2">
+              <h1 className="font-semibold">
+                Accuracy: <span className="font-bold text-blue-700">{per}</span>
+              </h1>
+            </div>
+          )}
+          {disease && (
+            <div className="p-4 border-2 border-green-500 rounded-2xl text-xl text-green-800 shadow-lg bg-green-50 mt-6 flex items-center gap-2">
+              <h1 className="font-semibold">
+                 Expected Disease: <span className="font-bold text-green-700">{disease}</span>
+              </h1>
+            </div>
           )}
         </>
       )}
