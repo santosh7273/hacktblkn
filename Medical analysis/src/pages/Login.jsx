@@ -1,12 +1,34 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch("/api/user/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+      alert(data.message); // Or show it nicely in the UI
+
+    } catch (err) {
+      console.error("Login failed:", err);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-100 to-indigo-200 p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 space-y-6">
         <h2 className="text-3xl font-bold text-center text-indigo-600">Login to your account</h2>
-        <form className="space-y-5">
+        <form className="space-y-5" onSubmit={handleLogin}>
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Email Address
@@ -15,6 +37,8 @@ const Login = () => {
               type="email"
               id="email"
               required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
               placeholder="you@example.com"
             />
@@ -28,6 +52,8 @@ const Login = () => {
               type="password"
               id="password"
               required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
               placeholder="••••••••"
             />
@@ -57,7 +83,6 @@ const Login = () => {
             Sign up
           </Link>   
         </p>
-        
       </div>
     </div>
   );

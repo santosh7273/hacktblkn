@@ -5,17 +5,17 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="bg-indigo-600 text-white shadow-md">
+    <nav className="bg-blue-700 text-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 py-6 flex justify-between items-center">
         {/* Logo */}
-        <Link to="/" className="text-2xl font-bold hover:text-gray-300">
-          Medical Analysis
+        <Link to="/" className="text-3xl font-bold hover:text-gray-300">
+          Medico
         </Link>
 
         <div className="md:flex space-x-6">
-          <Link to="/" className="hover:text-gray-300">Home</Link>
-          <Link to="/about" className="hover:text-gray-300">About</Link>
-          <Link to="/login" className="hover:text-gray-300">Login</Link>
+          <Link to="/" className="hover:text-gray-300 text-[18px] font-bold">Home</Link>
+          <Link to="/about" className="hover:text-gray-300 text-[18px] font-bold">About</Link>
+          <Link to="/login" className="hover:text-gray-300 text-[18px] font-bold">Login</Link>
         </div>
 
         {/* Mobile menu button */}

@@ -8,6 +8,8 @@ import NavBar from './components/NavBar'
 import SignUp from './pages/SignUp'
 import ImageProcessing from './pages/ImageProcessing'
 import MultiImageProcessing from './pages/MultiImageProcessing'
+import Exports from './pages/Exports'
+import PageNotFound from './pages/PageNotFound'
 function App() {
   // const [count, setCount] = useState(0)
 
@@ -22,7 +24,8 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/imageProcessing" element={<ImageProcessing />} />
         <Route path="/multiimageProcessing" element={<MultiImageProcessing />} />
-        
+        <Route path="/export" element={<Exports />} />
+        <Route path="*" element={<PageNotFound />} />
 
       </Routes>
   

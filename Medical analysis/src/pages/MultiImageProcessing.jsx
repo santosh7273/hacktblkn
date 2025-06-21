@@ -13,7 +13,7 @@ Your task is to compare them and highlight the key differences or similarities i
 
 Provide a comprehensive analysis that covers:
 - The key differences between images (condition, severity, appearance)
-- Similarities and common patterns across the images
+- Similarities and common patterns across the imasges
 - Possible medical interpretations or diagnoses
 - Recommendations for further testing or treatment priorities
 
@@ -217,7 +217,7 @@ Format your response in a clear, flowing narrative. Include an "Accuracy: XX%" a
                 )}
               </div>
 
-              <div className="prose prose-lg max-w-none bg-white p-8 rounded-xl shadow-md border border-gray-100">
+              <div className="prose prose-lg max-w-none bg-white p-8 rounded-xl shadow-md border border-gray-100 text-[17px]">
                 <div dangerouslySetInnerHTML={{ __html: result.content }} />
               </div>
             </div>
@@ -227,7 +227,7 @@ Format your response in a clear, flowing narrative. Include an "Accuracy: XX%" a
           {result?.error && (
             <div className="mt-8 mb-10 p-6 bg-red-100 border-l-4 border-red-500 text-red-800 rounded-lg shadow-sm">
               <p className="font-semibold">Error:</p>
-              <p>{result.error}</p>
+              <p className="text-xl">{result.error}</p>
             </div>
           )}
         </div>
