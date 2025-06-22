@@ -2,9 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '@clerk/clerk-react';
 
 const Home = () => {
     let un = useNavigate();
+    const { isSignedIn, user } = useUser();
     
     // Animation variants
     const fadeIn = {
@@ -114,7 +116,11 @@ const Home = () => {
                           <p className="text-gray-600 mb-6">{feature.description}</p>
                           <motion.button 
                             onClick={() => {
-                              un(feature.link)
+                              if (isSignedIn) {
+                                un(feature.link);
+                              } else {
+                                window.Clerk.openSignIn();
+                              }
                             }}
                             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 shadow-sm hover:shadow-md"
                             whileHover={{ scale: 1.03 }}
@@ -127,7 +133,7 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-    
+                      </motion.div>
                 {/* Features Grid */}
                 <motion.div
                   variants={staggerContainer}
@@ -195,7 +201,6 @@ const Home = () => {
     </motion.div>
   ))}
 </div>
-</motion.div>
 </motion.div>
 </div>
 </div>

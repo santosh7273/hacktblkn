@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,7 +16,13 @@ const Navbar = () => {
         <div className="md:flex space-x-6">
           <Link to="/" className="hover:text-gray-300 text-[18px] font-bold">Home</Link>
           <Link to="/about" className="hover:text-gray-300 text-[18px] font-bold">About</Link>
-          <Link to="/login" className="hover:text-gray-300 text-[18px] font-bold">Login</Link>
+          {/* Clerk Auth Buttons */}
+          <SignedOut>
+            <SignInButton className="hover:text-gray-300 text-[18px] font-bold" mode="modal" />
+          </SignedOut>
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
         </div>
 
         {/* Mobile menu button */}
@@ -37,7 +44,13 @@ const Navbar = () => {
         <div className="md:hidden px-4 pb-4 space-y-2">
           <Link to="/" className="block hover:text-gray-300">Home</Link>
           <Link to="/about" className="block hover:text-gray-300">About</Link>
-          <Link to="/login" className="block hover:text-gray-300">Login</Link>
+          {/* Clerk Auth Buttons for mobile */}
+          <SignedOut>
+            <SignInButton mode="modal" />
+          </SignedOut>
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
         </div>
       )}
     </nav>
